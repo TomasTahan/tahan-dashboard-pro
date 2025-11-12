@@ -1,3 +1,9 @@
+import { SiteHeader } from "@/components/site-header";
+
 export default function DashboardPage() {
-  return <div>Test</div>;
+  return (
+    <div>
+      <SiteHeader title="Dashboard" />
+    </div>
+  );
 }
