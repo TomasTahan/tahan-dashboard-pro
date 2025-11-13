@@ -11,6 +11,9 @@ importers:
       '@ai-sdk/openai':
         specifier: 3.0.0-beta.57
         version: 3.0.0-beta.57(zod@4.1.12)
+      '@openrouter/ai-sdk-provider':
+        specifier: ^1.2.1
+        version: 1.2.1(ai@6.0.0-beta.99(zod@4.1.12))(zod@4.1.12)
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -586,6 +589,13 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@openrouter/ai-sdk-provider@1.2.1':
+    resolution: {integrity: sha512-sDc+/tlEM9VTsYlZ3YMwD9AHinSNusdLFGQhtb50eo5r68U/yBixEHRsKEevqSspiX3V6J06hU7C25t4KE9iag==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      ai: ^5.0.0
+      zod: ^3.24.1 || ^v4
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -4135,6 +4145,11 @@ snapshots:
       fastq: 1.19.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@openrouter/ai-sdk-provider@1.2.1(ai@6.0.0-beta.99(zod@4.1.12))(zod@4.1.12)':
+    dependencies:
+      ai: 6.0.0-beta.99(zod@4.1.12)
+      zod: 4.1.12
 
   '@opentelemetry/api@1.9.0': {}
 

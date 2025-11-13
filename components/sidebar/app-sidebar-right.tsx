@@ -8,65 +8,62 @@ import {
   IconNotes,
 } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
-
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { Sidebar, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-// import type { Agent } from "@/types/agent";
 
 // Importar componentes de agentes
 // import { NotificationAgent } from "@/components/agents/notification-agent";
 // import { MessageAgent } from "@/components/agents/message-agent";
 // import { ActivityAgent } from "@/components/agents/activity-agent";
-// import { ExpensesAgent } from "@/components/agents/expenses-agent";
+import { Agent } from "../agents/types";
+import { SimpleAgent } from "../agents/simple-agent";
+import { ExpensesAgent } from "../agents/expenses-agent";
 
+const SIMPLE_AGENT_ID = "simple-assistant";
 const EXPENSES_AGENT_ID = "expenses-assistant";
 
-// const agents: Agent[] = [
-//   {
-//     id: EXPENSES_AGENT_ID,
-//     name: "THN Gastos",
-//     icon: IconNotes,
-//     badge: null,
-//     component: ExpensesAgent,
-//     width: "420px",
-//   },
-//   {
-//     id: "notifications",
-//     name: "Notificaciones",
-//     icon: IconBell,
-//     badge: 3,
-//     component: NotificationAgent,
-//     width: "250px",
-//   },
-//   {
-//     id: "messages",
-//     name: "Mensajes",
-//     icon: IconMessage,
-//     badge: 5,
-//     component: MessageAgent,
-//     width: "420px",
-//   },
-//   {
-//     id: "activity",
-//     name: "Actividad",
-//     icon: IconClock,
-//     badge: null,
-//     component: ActivityAgent,
-//     width: "400px",
-//   },
-// ];
+const agents: Agent[] = [
+  {
+    id: SIMPLE_AGENT_ID,
+    name: "Agente Simple",
+    icon: IconBell,
+    badge: null,
+    component: SimpleAgent,
+    width: "420px",
+  },
+  {
+    id: EXPENSES_AGENT_ID,
+    name: "THN Gastos",
+    icon: IconNotes,
+    badge: null,
+    component: ExpensesAgent,
+    width: "420px",
+  },
+  // {
+  //   id: "notifications",
+  //   name: "Notificaciones",
+  //   icon: IconBell,
+  //   badge: 3,
+  //   component: NotificationAgent,
+  //   width: "250px",
+  // },
+  // {
+  //   id: "messages",
+  //   name: "Mensajes",
+  //   icon: IconMessage,
+  //   badge: 5,
+  //   component: MessageAgent,
+  //   width: "420px",
+  // },
+  // {
+  //   id: "activity",
+  //   name: "Actividad",
+  //   icon: IconClock,
+  //   badge: null,
+  //   component: ActivityAgent,
+  //   width: "400px",
+  // },
+];
 
 export function AppSidebarRight({
   ...props
@@ -81,10 +78,17 @@ export function AppSidebarRight({
       return null;
     }
 
+    // Agente Simple pinneado en /dashboard
+    if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
+      return SIMPLE_AGENT_ID;
+    }
+
+    // Agente de Gastos pinneado en /thn-gastos
     if (pathname === "/thn-gastos" || pathname.startsWith("/thn-gastos/")) {
       return EXPENSES_AGENT_ID;
     }
 
+    // En otras rutas, sin agente pinneado (pero disponibles en hover)
     return null;
   }, [pathname]);
   const [activeAgentId, setActiveAgentId] = React.useState<string | null>(
@@ -95,13 +99,12 @@ export function AppSidebarRight({
   );
 
   // Obtener el agente activo
-  // TODO: Descomentar cuando se implementen los agentes
-  // const activeAgent = agents.find((agent) => agent.id === activeAgentId);
-  // const renderedAgent = agents.find((agent) => agent.id === renderedAgentId);
-  // const isPinnedActive =
-  //   Boolean(pinnedAgentId) && activeAgent?.id === pinnedAgentId;
-  // const isPinnedRendered =
-  //   Boolean(pinnedAgentId) && renderedAgent?.id === pinnedAgentId;
+  const activeAgent = agents.find((agent) => agent.id === activeAgentId);
+  const renderedAgent = agents.find((agent) => agent.id === renderedAgentId);
+  const isPinnedActive =
+    Boolean(pinnedAgentId) && activeAgent?.id === pinnedAgentId;
+  const isPinnedRendered =
+    Boolean(pinnedAgentId) && renderedAgent?.id === pinnedAgentId;
 
   const handleMouseEnter = (agentId: string) => {
     // Cancelar cualquier cierre pendiente
@@ -210,14 +213,12 @@ export function AppSidebarRight({
 
   // Aplicar ancho dinámico basado en el agente activo
   // Ancho total = ancho de iconos (3rem) + ancho del contenido del agente
-  // TODO: Descomentar cuando se implementen los agentes
   const iconWidth = "3rem";
-  // const contentWidth = activeAgent?.width || "0px";
-  // const sidebarWidth =
-  //   (openRight && activeAgent) || isPinnedActive
-  //     ? `calc(${iconWidth} + ${contentWidth})`
-  //     : iconWidth;
-  const sidebarWidth = iconWidth; // Por ahora solo el ancho de iconos
+  const contentWidth = activeAgent?.width || "0px";
+  const sidebarWidth =
+    (openRight && activeAgent) || isPinnedActive
+      ? `calc(${iconWidth} + ${contentWidth})`
+      : iconWidth;
 
   return (
     <Sidebar
@@ -239,9 +240,8 @@ export function AppSidebarRight({
       }
     >
       <div className="flex h-full">
-        {/* TODO: Descomentar cuando se implementen los agentes */}
         {/* Contenido del agente - solo visible cuando hay un agente activo */}
-        {/* {((openRight && renderedAgent) || isPinnedRendered) &&
+        {((openRight && renderedAgent) || isPinnedRendered) &&
           renderedAgent && (
             <div
               key={renderedAgent.id}
@@ -250,7 +250,7 @@ export function AppSidebarRight({
             >
               <renderedAgent.component agentId={renderedAgent.id} />
             </div>
-          )} */}
+          )}
 
         {/* Columna de iconos - siempre visible en el lado derecho */}
         <div className="flex w-12 shrink-0 flex-col ml-auto">
@@ -261,7 +261,7 @@ export function AppSidebarRight({
 
           {/* Iconos de agentes */}
           <div className="flex flex-1 flex-col gap-1 p-2 mt-12">
-            {/* {agents.map((agent) => {
+            {agents.map((agent) => {
               const hasBadge = agent.badge !== null && agent.badge > 0;
               const isActive = activeAgentId === agent.id;
 
@@ -286,7 +286,7 @@ export function AppSidebarRight({
                   )}
                 </button>
               );
-            })} */}
+            })}
           </div>
 
           {/* Footer */}
