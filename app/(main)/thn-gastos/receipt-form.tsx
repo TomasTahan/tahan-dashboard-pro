@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { getPendingReceipt } from "./data";
+import { getPendingReceipt, getReceiptNavigationInfo } from "./data";
 import { confirmExpense } from "./actions";
+import { ReceiptNavigation } from "./receipt-navigation";
 
 type ReceiptFormProps = {
   receiptId?: string;
@@ -19,13 +20,29 @@ export async function ReceiptForm({ receiptId }: ReceiptFormProps) {
     );
   }
 
+  // Obtener información de navegación
+  const navigationInfo = await getReceiptNavigationInfo(receipt.id);
+
   return (
     <section className="flex flex-col rounded-xl border bg-muted/10 p-4 shadow-xs">
+      {/* Navegación entre boletas */}
+      <div className="mb-4">
+        <ReceiptNavigation
+          previousId={navigationInfo.previousId}
+          nextId={navigationInfo.nextId}
+          currentIndex={navigationInfo.currentIndex}
+          totalCount={navigationInfo.totalCount}
+        />
+      </div>
+
       <form
         action={confirmExpense}
         className="flex flex-1 flex-col gap-4"
         noValidate
       >
+        {/* Campo oculto con el ID de la boleta */}
+        <input type="hidden" name="boleta_id" value={receipt.id} />
+
         <div className="grid gap-4">
           <div className="space-y-2">
             <label

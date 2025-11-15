@@ -51,6 +51,17 @@ export function ImageViewer({ imageUrl, altText }: ImageViewerProps) {
     setZoomLevel(1);
   };
 
+  // Validar que la URL no esté vacía
+  if (!imageUrl || imageUrl.trim() === "") {
+    return (
+      <section className="relative flex flex-col gap-4">
+        <div className="relative flex h-full max-h-[88vh] items-center justify-center rounded-xl border bg-muted/20">
+          <p className="text-muted-foreground">No hay imagen disponible</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <>
       <section className="relative flex flex-col gap-4">
