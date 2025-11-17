@@ -240,3 +240,282 @@ export async function getReceiptNavigationInfo(
     };
   }
 }
+
+/**
+ * Tipo para los choferes
+ */
+export type Driver = {
+  user_id: string;
+  nombre_completo: string;
+  email: string;
+  odoo_id: number | null;
+};
+
+/**
+ * Tipo simplificado para el combobox
+ */
+export type DriverBasic = {
+  user_id: string;
+  nombre_completo: string;
+};
+
+/**
+ * Obtiene todos los choferes desde la vista materializada drivers_info
+ * Esta vista está optimizada para choferes (nivel_rank = 10) e incluye odoo_id
+ */
+export async function getDrivers(): Promise<Driver[]> {
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("drivers_info")
+      .select("user_id, nombre_completo, email, odoo_id")
+      .order("nombre_completo", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching drivers:", error);
+      return [];
+    }
+
+    return data
+      ? data.map((d) => ({
+          user_id: d.user_id!,
+          nombre_completo: d.nombre_completo!,
+          email: d.email!,
+          odoo_id: d.odoo_id,
+        }))
+      : [];
+  } catch (error) {
+    console.error("Unexpected error in getDrivers:", error);
+    return [];
+  }
+}
+
+/**
+ * Tipos para trips y boletas
+ */
+export type TripStatus = "planned" | "in_progress" | "completed" | "confirmed" | "pending_approval" | "on_hold" | "cancelled";
+
+export type BoletaEstado = "creado" | "procesando" | "espera" | "confirmado" | "cancelado";
+
+export type Boleta = {
+  boleta_id: string;
+  url: string | null;
+  referencia: string | null;
+  razon_social: string | null;
+  date: string | null;
+  total: number;
+  moneda: string;
+  descripcion: string | null;
+  identificador_fiscal: string | null;
+  estado: BoletaEstado;
+  validated_at: string | null;
+  validated_by: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export type CurrencyGroup = {
+  moneda: string;
+  total_boletas: number;
+  boletas_confirmadas: number;
+  boletas_pendientes: number;
+  boletas_canceladas: number;
+  monto_gastado: number;
+  boletas: Boleta[];
+};
+
+export type TripDetail = {
+  id: string;
+  trip_number: string;
+  driver: string;
+  driver_id: string | null;
+  monto_adelantado: number;
+  moneda_adelantado: string;
+  destination: string;
+  start_date: string | null;
+  end_date: string | null;
+  status: TripStatus;
+  created_at: string;
+  currency_groups: CurrencyGroup[];
+};
+
+/**
+ * Obtiene un viaje por ID con sus boletas agrupadas por moneda
+ */
+export async function getTripDetail(tripId: string): Promise<TripDetail | null> {
+  const supabase = await createClient();
+
+  try {
+    // 1. Obtener información del trip
+    const { data: trip, error: tripError } = await supabase
+      .from("trips")
+      .select("*")
+      .eq("id", tripId)
+      .single();
+
+    if (tripError || !trip) {
+      console.error("Error fetching trip:", tripError);
+      return null;
+    }
+
+    // 2. Obtener todas las boletas del trip
+    const { data: boletas, error: boletasError } = await supabase
+      .from("boletas")
+      .select("*")
+      .eq("trip_id", tripId)
+      .order("created_at", { ascending: false });
+
+    if (boletasError) {
+      console.error("Error fetching boletas:", boletasError);
+      return null;
+    }
+
+    // 3. Agrupar boletas por moneda
+    const currencyGroups = groupBoletasByCurrency(boletas || []);
+
+    return {
+      id: trip.id,
+      trip_number: trip.trip_number,
+      driver: trip.driver || "Sin conductor",
+      driver_id: trip.driver_id,
+      monto_adelantado: trip.monto_adelantado || 0,
+      moneda_adelantado: trip.moneda_adelantado || "CLP",
+      destination: trip.destination || "Sin destino",
+      start_date: trip.start_date,
+      end_date: trip.end_date,
+      status: trip.status,
+      created_at: trip.created_at,
+      currency_groups: currencyGroups,
+    };
+  } catch (error) {
+    console.error("Unexpected error in getTripDetail:", error);
+    return null;
+  }
+}
+
+/**
+ * Tipos para lista de trips
+ */
+export type TripListStatus = "planned" | "in_progress" | "completed" | "confirmed" | "pending_approval" | "on_hold" | "cancelled";
+
+export interface TripListItem {
+  id: string;
+  trip_number: string;
+  driver: string;
+  driver_id: string | null;
+  destination: string;
+  start_date: string | null;
+  end_date: string | null;
+  status: TripListStatus;
+  monto_adelantado: number;
+  moneda_adelantado: string;
+  created_at: string;
+  // Datos calculados desde boletas
+  total_expenses: number;
+  receipts_count: number;
+}
+
+/**
+ * Obtiene todos los trips con sus estadísticas de boletas
+ */
+export async function getAllTrips(): Promise<TripListItem[]> {
+  const supabase = await createClient();
+
+  try {
+    // 1. Obtener todos los trips
+    const { data: trips, error: tripsError } = await supabase
+      .from("trips")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (tripsError || !trips) {
+      console.error("Error fetching trips:", tripsError);
+      return [];
+    }
+
+    // 2. Para cada trip, obtener estadísticas de boletas
+    const tripsWithStats = await Promise.all(
+      trips.map(async (trip) => {
+        // Obtener boletas confirmadas para calcular gastos totales
+        const { data: boletas, error: boletasError } = await supabase
+          .from("boletas")
+          .select("total, estado")
+          .eq("trip_id", trip.id);
+
+        if (boletasError) {
+          console.error(`Error fetching boletas for trip ${trip.id}:`, boletasError);
+        }
+
+        const confirmedBoletas = (boletas || []).filter((b) => b.estado === "confirmado");
+        const totalExpenses = confirmedBoletas.reduce((sum, b) => sum + (b.total || 0), 0);
+
+        return {
+          id: trip.id,
+          trip_number: trip.trip_number,
+          driver: trip.driver || "Sin conductor",
+          driver_id: trip.driver_id,
+          destination: trip.destination || "Sin destino",
+          start_date: trip.start_date,
+          end_date: trip.end_date,
+          status: trip.status as TripListStatus,
+          monto_adelantado: trip.monto_adelantado || 0,
+          moneda_adelantado: trip.moneda_adelantado || "CLP",
+          created_at: trip.created_at,
+          total_expenses: totalExpenses,
+          receipts_count: boletas?.length || 0,
+        };
+      })
+    );
+
+    return tripsWithStats;
+  } catch (error) {
+    console.error("Unexpected error in getAllTrips:", error);
+    return [];
+  }
+}
+
+/**
+ * Agrupa boletas por moneda y calcula estadísticas
+ */
+function groupBoletasByCurrency(boletas: any[]): CurrencyGroup[] {
+  const grouped = boletas.reduce<Record<string, Boleta[]>>((acc, boleta) => {
+    const moneda = boleta.moneda || "UNKNOWN";
+    if (!acc[moneda]) {
+      acc[moneda] = [];
+    }
+    acc[moneda].push({
+      boleta_id: boleta.boleta_id.toString(),
+      url: boleta.url,
+      referencia: boleta.referencia,
+      razon_social: boleta.razon_social,
+      date: boleta.date,
+      total: boleta.total || 0,
+      moneda: boleta.moneda || "UNKNOWN",
+      descripcion: boleta.descripcion,
+      identificador_fiscal: boleta.identificador_fiscal,
+      estado: boleta.estado,
+      validated_at: boleta.validated_at,
+      validated_by: boleta.validated_by,
+      created_at: boleta.created_at,
+      updated_at: boleta.updated_at,
+    });
+    return acc;
+  }, {});
+
+  return Object.entries(grouped).map(([moneda, boletasList]): CurrencyGroup => {
+    const confirmadas = boletasList.filter((b) => b.estado === "confirmado");
+    const pendientes = boletasList.filter((b) => b.estado === "espera");
+    const canceladas = boletasList.filter((b) => b.estado === "cancelado");
+
+    return {
+      moneda,
+      total_boletas: boletasList.length,
+      boletas_confirmadas: confirmadas.length,
+      boletas_pendientes: pendientes.length,
+      boletas_canceladas: canceladas.length,
+      monto_gastado: confirmadas.reduce((sum, b) => sum + b.total, 0),
+      boletas: boletasList,
+    };
+  });
+}
