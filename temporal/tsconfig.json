@@ -1,16 +1,23 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "node",
     "outDir": "./dist",
+    "rootDir": "..",
     "declaration": false,
     "sourceMap": false,
     "skipLibCheck": true,
     "strict": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "**/*.ts",
@@ -20,11 +27,9 @@
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "../lib/supabase/client.ts",
-    "../lib/supabase/server.ts",
-    "../lib/supabase/middleware.ts",
-    "../lib/temporal-client.ts",
-    "../lib/utils.ts"
-  ]
+    "dist"
+  ],
+  "ts-node": {
+    "esm": true
+  }
 }
