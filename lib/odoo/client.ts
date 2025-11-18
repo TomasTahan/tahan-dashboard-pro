@@ -56,7 +56,7 @@ export class OdooClient {
       );
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
 
     if (data.error) {
       console.error("Odoo API Error:", data.error);

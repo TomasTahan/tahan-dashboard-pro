@@ -70,7 +70,7 @@ export async function transcribeAudio(
       );
     }
 
-    const transcriptionData = await transcriptionResponse.json();
+    const transcriptionData = await transcriptionResponse.json() as any;
 
     console.log(`Transcripción completada: "${transcriptionData.text}"`);
 
