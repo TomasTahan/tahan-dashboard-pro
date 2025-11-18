@@ -14,10 +14,17 @@
   },
   "include": [
     "**/*.ts",
-    "../lib/**/*.ts"
+    "../lib/odoo/**/*.ts",
+    "../lib/openai/**/*.ts",
+    "../lib/supabase/database.types.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "../lib/supabase/client.ts",
+    "../lib/supabase/server.ts",
+    "../lib/supabase/middleware.ts",
+    "../lib/temporal-client.ts",
+    "../lib/utils.ts"
   ]
 }
