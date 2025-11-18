@@ -1,5 +1,5 @@
 import { proxyActivities } from "@temporalio/workflow";
-import type * as activities from "../activities/receipt.activities";
+import type * as activities from "../activities/receipt.activities.js";
 
 // Configurar timeouts para las actividades
 const {

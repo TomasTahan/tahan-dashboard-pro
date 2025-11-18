@@ -1,6 +1,6 @@
 import { NativeConnection, Worker } from "@temporalio/worker";
-import * as activities from "./activities/receipt.activities";
-import * as expenseActivities from "./activities/expense.activities";
+import * as activities from "./activities/receipt.activities.js";
+import * as expenseActivities from "./activities/expense.activities.js";
 
 /**
  * Worker de Temporal para procesar workflows
@@ -16,7 +16,7 @@ async function run() {
   const namespace = process.env.TEMPORAL_NAMESPACE || "default";
 
   console.log(`= Conectando a Temporal: ${temporalAddress}`);
-  console.log(`=æ Namespace: ${namespace}`);
+  console.log(`=ï¿½ Namespace: ${namespace}`);
 
   // Conectar a Temporal Server
   const connection = await NativeConnection.connect({
@@ -36,8 +36,8 @@ async function run() {
   });
 
   console.log(" Worker iniciado y escuchando workflows...");
-  console.log(`=Ë Task Queue: tahan-main-queue`);
-  console.log(`=Á Workflows: process-receipt, create-expense\n`);
+  console.log(`=ï¿½ Task Queue: tahan-main-queue`);
+  console.log(`=ï¿½ Workflows: process-receipt, create-expense\n`);
 
   // Ejecutar worker
   await worker.run();

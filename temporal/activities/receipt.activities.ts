@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/supabase/database.types";
 import { transcribeAudio, isValidAudioUrl } from "@/lib/openai/transcribe";
-import type { ProcessReceiptInput } from "../workflows/process-receipt.workflow";
+import type { ProcessReceiptInput } from "../workflows/process-receipt.workflow.js";
 
 // Cliente de Supabase con secret key para bypasear RLS
 const supabaseAdmin = createClient<Database>(
