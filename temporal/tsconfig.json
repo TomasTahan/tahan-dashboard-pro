@@ -9,21 +9,21 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": ".",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "declaration": false,
+    "sourceMap": false,
+    "baseUrl": "..",
     "paths": {
-      "@/*": ["../*"]
+      "@/*": ["./*"]
     },
     "types": ["node"]
   },
   "include": [
-    "**/*.ts",
-    "../lib/**/*.ts"
+    "**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "../node_modules",
+    "../.next"
   ]
 }

@@ -6,10 +6,6 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Copiar package.json de la raíz (para types compartidos)
-COPY package.json ./
-COPY tsconfig.json ./
-
 # Copiar código compartido (lib)
 COPY lib ./lib
 
@@ -22,7 +18,7 @@ WORKDIR /app/temporal
 # Instalar dependencias
 RUN npm install
 
-# Build
+# Build (compilará desde /app debido a baseUrl en tsconfig)
 RUN npm run build
 
 # Exponer puerto (opcional, solo para health checks)
