@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch worker.ts",
-    "build": "tsc",
+    "build": "tsc --noEmitOnError false",
     "start": "node dist/worker.js"
   },
   "dependencies": {
