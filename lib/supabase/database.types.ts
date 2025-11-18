@@ -179,7 +179,9 @@ export type Database = {
           descripcion: string | null
           estado: Database["public"]["Enums"]["boleta_estado"]
           identificador_fiscal: string | null
+          metadata: Json
           moneda: string | null
+          odoo_expense_id: number | null
           razon_social: string | null
           referencia: string | null
           total: number | null
@@ -197,7 +199,9 @@ export type Database = {
           descripcion?: string | null
           estado?: Database["public"]["Enums"]["boleta_estado"]
           identificador_fiscal?: string | null
+          metadata?: Json
           moneda?: string | null
+          odoo_expense_id?: number | null
           razon_social?: string | null
           referencia?: string | null
           total?: number | null
@@ -215,7 +219,9 @@ export type Database = {
           descripcion?: string | null
           estado?: Database["public"]["Enums"]["boleta_estado"]
           identificador_fiscal?: string | null
+          metadata?: Json
           moneda?: string | null
+          odoo_expense_id?: number | null
           razon_social?: string | null
           referencia?: string | null
           total?: number | null
