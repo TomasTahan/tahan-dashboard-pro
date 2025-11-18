@@ -8,7 +8,9 @@
     "outDir": "./dist",
     "declaration": false,
     "sourceMap": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false
   },
   "include": [
     "**/*.ts",

@@ -79,13 +79,13 @@ export async function validateAndGetBoleta(boleta_id: number): Promise<BoletaDat
     boleta_id: boleta.boleta_id,
     trip_id: boleta.trip_id,
     driver_id: boleta.trips.driver_id,
-    referencia: boleta.referencia,
-    razon_social: boleta.razon_social,
-    date: boleta.date,
+    referencia: boleta.referencia || null,
+    razon_social: boleta.razon_social || null,
+    date: boleta.date || null,
     total: boleta.total || 0,
     moneda: boleta.moneda || "CLP",
-    descripcion: boleta.descripcion,
-    identificador_fiscal: boleta.identificador_fiscal,
+    descripcion: boleta.descripcion || null,
+    identificador_fiscal: boleta.identificador_fiscal || null,
     estado: boleta.estado,
     ai_keywords: aiKeywords,
   };
@@ -117,8 +117,8 @@ export async function getDriverOdooId(driver_id: string): Promise<{
   console.log(`✅ Conductor: ${driverInfo.nombre_completo} (Odoo ID: ${driverInfo.odoo_id})`);
 
   return {
-    odoo_id: driverInfo.odoo_id,
-    nombre_completo: driverInfo.nombre_completo,
+    odoo_id: driverInfo.odoo_id!,
+    nombre_completo: driverInfo.nombre_completo!,
   };
 }
 

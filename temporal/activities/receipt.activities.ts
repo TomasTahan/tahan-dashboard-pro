@@ -151,7 +151,7 @@ export async function analyzeReceiptWithAI(input: {
       throw new Error(`AI service returned ${aiResult.status}: ${aiResult.statusText}`);
     }
 
-    const aiResponse: AIAnalysisResponse = await aiResult.json();
+    const aiResponse = await aiResult.json() as AIAnalysisResponse;
     return aiResponse;
   } catch (error) {
     console.error("Error en análisis de IA:", error);
