@@ -12,13 +12,12 @@ COPY package.json pnpm-lock.yaml ./
 # 3. Instalar dependencias
 RUN pnpm install --frozen-lockfile
 
-# 4. Copiar código
+# 4. Copiar código fuente
 COPY . .
 
 # 5. Variables
 ENV NODE_ENV=production
 
-# --- CAMBIO IMPORTANTE AQUÍ ---
-# Usamos 'tsx' en lugar de 'ts-node'. 
-# 'tsx' maneja mejor las rutas y los imports de TypeScript en proyectos modernos.
-CMD ["npx", "tsx", "src/temporal/worker.ts"]
+# --- CORRECCIÓN AQUÍ ---
+# Quitamos "src/" porque tu carpeta temporal está en la raíz del proyecto
+CMD ["npx", "tsx", "temporal/worker.ts"]
