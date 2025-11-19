@@ -1,1 +1,1 @@
-
+- Usa siempre pnpm para todo lo que haga falta

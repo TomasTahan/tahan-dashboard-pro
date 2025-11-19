@@ -21,5 +21,8 @@ COPY . .
 # 4. Variables
 ENV NODE_ENV=production
 
-# 5. Comando de inicio
-CMD ["npx", "tsx", "temporal/worker.ts"]
+# 5. Exponer puerto HTTP
+EXPOSE 3001
+
+# 6. Comando de inicio (worker + HTTP server)
+CMD ["npx", "tsx", "temporal/worker-with-http.ts"]

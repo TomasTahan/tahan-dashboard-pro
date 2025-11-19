@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTemporalClient } from "@/temporal/client";
 
 export const maxDuration = 10;
+
+const WORKER_URL = process.env.WORKER_URL || "http://localhost:3001";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,19 +16,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const client = await getTemporalClient();
-
-    const handle = await client.workflow.start("createExpenseWorkflow", {
-      taskQueue: "tahan-gastos-queue",
-      args: [{ boletaId: boleta_id, productId: product_id }],
-      workflowId: `expense-${boleta_id}-${Date.now()}`,
+    // Llamar al worker via HTTP
+    const response = await fetch(`${WORKER_URL}/api/create-expense`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ boleta_id, product_id }),
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Creación de gasto iniciada en Odoo",
-      workflowId: handle.workflowId,
-    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error del worker");
+    }
+
+    return NextResponse.json(data);
   } catch (e: any) {
     console.error(e);
     return NextResponse.json(

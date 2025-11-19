@@ -7,6 +7,7 @@ export async function getTemporalClient() {
 
   const connection = await Connection.connect({
     address: process.env.TEMPORAL_ADDRESS || "localhost:7233",
+    tls: false, // Disable TLS for local development
   });
 
   client = new Client({
