@@ -3,21 +3,23 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# 1. Instalar pnpm
+# 1. Instalar dependencias de sistema necesarias para Temporal en Alpine
+RUN apk add --no-cache libc6-compat
+
+# 2. Instalar pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# 2. Copiar dependencias
+# 3. Copiar dependencias
 COPY package.json pnpm-lock.yaml ./
 
-# 3. Instalar dependencias
+# 4. Instalar dependencias
 RUN pnpm install --frozen-lockfile
 
-# 4. Copiar código fuente
+# 5. Copiar código fuente
 COPY . .
 
-# 5. Variables
+# 6. Variables
 ENV NODE_ENV=production
 
-# --- CORRECCIÓN AQUÍ ---
-# Quitamos "src/" porque tu carpeta temporal está en la raíz del proyecto
+# 7. Ejecutar
 CMD ["npx", "tsx", "temporal/worker.ts"]
