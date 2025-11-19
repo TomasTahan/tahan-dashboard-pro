@@ -1,25 +1,25 @@
 # Dockerfile.worker
-FROM node:20-alpine
+# CAMBIO: Usamos 'slim' (Debian) en lugar de 'alpine' para tener compatibilidad nativa con Temporal
+FROM node:20-slim
+
+# Configuramos pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 WORKDIR /app
 
-# 1. Instalar dependencias de sistema necesarias para Temporal en Alpine
-RUN apk add --no-cache libc6-compat
-
-# 2. Instalar pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# 3. Copiar dependencias
+# 1. Copiar archivos de dependencias
 COPY package.json pnpm-lock.yaml ./
 
-# 4. Instalar dependencias
+# 2. Instalar dependencias
 RUN pnpm install --frozen-lockfile
 
-# 5. Copiar código fuente
+# 3. Copiar el código fuente
 COPY . .
 
-# 6. Variables
+# 4. Variables
 ENV NODE_ENV=production
 
-# 7. Ejecutar
+# 5. Comando de inicio
 CMD ["npx", "tsx", "temporal/worker.ts"]
