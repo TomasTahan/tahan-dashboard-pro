@@ -1,0 +1,18 @@
+# Dockerfile.worker
+FROM node:20-alpine
+
+WORKDIR /app
+
+# 1. Instalar dependencias
+COPY package*.json ./
+RUN npm ci
+
+# 2. Copiar el código fuente
+COPY . .
+
+# 3. Variables de entorno por defecto (se sobreescriben en Easypanel)
+ENV NODE_ENV=production
+
+# 4. Comando para iniciar el worker usando ts-node (directo y sin complicaciones)
+# Asegúrate de tener ts-node instalado en tus dependencias o usa npx
+CMD ["npx", "ts-node", "src/temporal/worker.ts"]
