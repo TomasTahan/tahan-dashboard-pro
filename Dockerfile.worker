@@ -3,22 +3,22 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# 1. Instalar pnpm globalmente (usando corepack que ya viene en Node 20)
+# 1. Instalar pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# 2. Copiar archivos de dependencias
-# Es importante copiar el pnpm-lock.yaml
+# 2. Copiar dependencias
 COPY package.json pnpm-lock.yaml ./
 
-# 3. Instalar dependencias usando pnpm
+# 3. Instalar dependencias
 RUN pnpm install --frozen-lockfile
 
-# 4. Copiar el código fuente
+# 4. Copiar código
 COPY . .
 
-# 5. Variables de entorno
+# 5. Variables
 ENV NODE_ENV=production
 
-# 6. Comando para iniciar el worker
-# Usamos npx (que funciona con pnpm) o directamente pnpm exec
-CMD ["npx", "ts-node", "src/temporal/worker.ts"]
+# --- CAMBIO IMPORTANTE AQUÍ ---
+# Usamos 'tsx' en lugar de 'ts-node'. 
+# 'tsx' maneja mejor las rutas y los imports de TypeScript en proyectos modernos.
+CMD ["npx", "tsx", "src/temporal/worker.ts"]
