@@ -3,16 +3,22 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# 1. Instalar dependencias
-COPY package*.json ./
-RUN npm ci
+# 1. Instalar pnpm globalmente (usando corepack que ya viene en Node 20)
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# 2. Copiar el código fuente
+# 2. Copiar archivos de dependencias
+# Es importante copiar el pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
+
+# 3. Instalar dependencias usando pnpm
+RUN pnpm install --frozen-lockfile
+
+# 4. Copiar el código fuente
 COPY . .
 
-# 3. Variables de entorno por defecto (se sobreescriben en Easypanel)
+# 5. Variables de entorno
 ENV NODE_ENV=production
 
-# 4. Comando para iniciar el worker usando ts-node (directo y sin complicaciones)
-# Asegúrate de tener ts-node instalado en tus dependencias o usa npx
+# 6. Comando para iniciar el worker
+# Usamos npx (que funciona con pnpm) o directamente pnpm exec
 CMD ["npx", "ts-node", "src/temporal/worker.ts"]
